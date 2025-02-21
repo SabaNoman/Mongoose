@@ -1,3 +1,6 @@
+//Creating a mongodb database using Mongoose to create Schemas with references
+//Users and BlogPosts
+
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import express from 'express'
@@ -16,15 +19,15 @@ async function main() {
 
 //User Schema
 const userSchema = new mongoose.Schema({
-    id: Number,
     name: String,
     email: String
 });
 
 //Blog Schema
 const blogSchema = new mongoose.Schema({
-    id: Number,
     postName: String,
+    authorName: String,
+    publishedDate: String,
     usersId: [
         { 
             type: mongoose.Schema.Types.ObjectId,
@@ -57,33 +60,28 @@ app.post("/addUserData", async (req, res) => {
 })
 
 app.post("/addBlog", async (req, res) => {
-    const { postName, usersId } = req.body
-    if (!postName && !usersId) {
+    const { postName, authorName, publishedDate, usersId } = req.body
+    if (!postName || !authorName || !publishedDate) {
         console.log("Fields are required");
         res.status(400).json({ error: "Fields are required" })
     }
-    const myNewBlog = new BlogInfo({ postName, usersId });
+    const myNewBlog = new BlogInfo({ postName, authorName, publishedDate, usersId });
     await myNewBlog.save();
     res.status(200).json(
         {
             message: "Form successfully submitted",
             recieved: {
-                postName, usersId
+                postName, authorName, publishedDate, usersId
             }
         }
     )
 })
 
+//Check the details of the users of the 'Third post'
+const result = await BlogInfo.findOne({postName:"My Third Post"})
+console.log(result)
+
+
 app.listen(port)
 
-
-
-//Blog Schema
-// const blogSchema = new mongoose.Schema({
-//     id: Number,
-//     postName: String,
-//     authorName: String,
-//     publishedDate: String,
-//     comments: []
-//   });
 // export { main };
